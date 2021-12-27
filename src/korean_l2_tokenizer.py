@@ -4,7 +4,8 @@
 ==> 조사 제외
 ==> 동사는 stemming
 """
-
+import os
+import random
 import re
 from konlpy.tag import Okt
 
@@ -44,15 +45,24 @@ def okt_tokenizer(data):
     return pos_tuple, tokenized
 
 if __name__ == '__main__':
-    data = """
-    특히 늦은 시간에 잠을 자는 것과 행야 할 일을 뒤로 미루는 것이 고치고 싶은 생활 습관이다. """
+    random.seed(1)
 
-    print("RAW DATA")
-    print(data)
+    NUMBER_OF_FILES = 2
 
-    pos, tokenized = okt_tokenizer(data)
-    print("INTERMEDIATE RESULT: Part-Of-Speech ")
-    print(pos)
-
-    print("FINAL RESULT: FUNCTION WORDS DELETED")
-    print(tokenized)
+    while NUMBER_OF_FILES > 0:
+        NUMBER_OF_FILES -= 1
+        file = random.choice(os.listdir("../data/selected"))
+        file_dir = "../data/selected/" + file
+        with open(file_dir, encoding='utf-8') as f:
+            lines = f.read()
+            pos, tokenized = okt_tokenizer(lines)
+            print(lines)
+            print(pos)
+            print(tokenized)
+            output_dir = "../data/output/" + file[:-4] + "_Output.txt"
+            with open(output_dir, "w", encoding='utf-8') as output_file:
+                output_file.write(lines)
+                output_file.write('\n\n')
+                output_file.write(str(pos))
+                output_file.write('\n\n')
+                output_file.write(str(tokenized))
