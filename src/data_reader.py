@@ -1,0 +1,29 @@
+import os
+
+
+def read_text_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        txt = f.read()
+        txt = txt.replace("\n", " ")
+    return txt
+
+
+def read_texts_into_lists(path):
+    """
+    TODO mark source https://www.geeksforgeeks.org/how-to-read-multiple-text-files-from-folder-in-python/
+    :param path:
+    :return:
+    """
+    os.chdir(path)
+    text_list = list()
+    txt_id = list()
+    for file in os.listdir():
+        # Check whether file is in text format or not
+        if file.endswith(".txt"):
+            file_path = f"{path}\{file}"
+            txt_id.append(file)
+            # call read text file function
+            txt = read_text_file(file_path)
+            text_list.append(txt)
+
+    return txt_id, text_list
