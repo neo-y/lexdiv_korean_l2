@@ -6,59 +6,78 @@
 """
 import os
 import random
-import re
 from konlpy.tag import Okt
 
-PUNCTUATION = "`` '' ' . , ? ! ) ( % / - _ -LRB- -RRB- SYM : ;".split(" ")
-FUNCTION_POS = ['Josa']
-
-def remove_special_char(raw_text):
-    for x in PUNCTUATION:
-        raw_text = raw_text.replace(x, "")
-    punc_removed = re.sub('\s+', ' ', raw_text)
-    return punc_removed
+STOPWORDS_POS = ['URL', 'Email', 'ScreenName', 'Hashtag', 'KoreanParticle', 'Punctuation', 'Foreign', 'Alpha', 'Number',
+                 'Unknown']
+CONTENT_POS = ['Noun', 'Verb', 'Adjective', 'Adverb']
 
 
-def remove_function_words(token_pos_tuple):
+# PUNCTUATION = "`` '' ' . , ? ! ) ( % / - _ -LRB- -RRB- SYM : ;".split(" ")
+# def remove_special_char(raw_text):
+#     for x in PUNCTUATION:
+#         raw_text = raw_text.replace(x, "")
+#     punc_removed = re.sub('\s+', ' ', raw_text)
+#     return punc_removed
+
+
+def remove_stop_words(token_pos_tuple, content_only=False):
     """
+    :param content_only: boolean, if True, only content words (verb, noun, adjective, adverb) are included in the output.
     :param token_pos_tuple: list of tuple consisting of token and POS [('열심히', 'Adverb'), ('코딩', 'Noun')...]
-    :return: list of tokens without function words
+    :return: list of tokens without stopwords
     """
     tokenized = []
-    for index, tuple in enumerate(token_pos_tuple):
-        if tuple[1] not in FUNCTION_POS: # tuple[1] = POS
-            tokenized.append(tuple[0])
+
+    if content_only:  # include only content words:
+        for index, pair in enumerate(token_pos_tuple):
+            if pair[1] in CONTENT_POS:  # tuple[1] = POS
+                tokenized.append(pair[0])
+
+    else:  # include all words (function words + content words)
+        for index, pair in enumerate(token_pos_tuple):
+            if pair[1] not in STOPWORDS_POS:
+                tokenized.append(pair[0])
 
     return tokenized
 
-def okt_tokenizer(data):
+
+def tokenize(data, content_only=False):
+    """
+    tokenize sequences using okt tokenizer from konlpy.
+    :param data: str, raw text
+    :param content_only: boolean, if True, only content words (verb, noun, adjective, adverb) are included in the output.
+    :return:
+    """
     okt = Okt()
-    # remove special characters
-    data = remove_special_char(data)
 
     # tokenize (verb stemmer included)
     pos_tuple = okt.pos(data, norm=True, stem=True)
 
-    # remove function words
-    tokenized = remove_function_words(pos_tuple)
+    # remove stopwords
+    tokenized = remove_stop_words(pos_tuple, content_only=content_only)
 
     return pos_tuple, tokenized
 
-if __name__ == '__main__':
+
+def write_tokenized_output(number_of_files=5):
+    """
+    TODO move this function to separate script
+    :param number_of_files:
+    :return:
+    """
     random.seed(1)
 
-    NUMBER_OF_FILES = 2
-
-    while NUMBER_OF_FILES > 0:
-        NUMBER_OF_FILES -= 1
+    while number_of_files > 0:
+        number_of_files -= 1
         file = random.choice(os.listdir("../data/selected"))
         file_dir = "../data/selected/" + file
         with open(file_dir, encoding='utf-8') as f:
             lines = f.read()
-            pos, tokenized = okt_tokenizer(lines)
-            print(lines)
-            print(pos)
-            print(tokenized)
+            pos, tokenized = tokenize(lines)
+            # print(lines)
+            # print(pos)
+            # print(tokenized)
             output_dir = "../data/output/" + file[:-4] + "_Output.txt"
             with open(output_dir, "w", encoding='utf-8') as output_file:
                 output_file.write(lines)
@@ -66,3 +85,7 @@ if __name__ == '__main__':
                 output_file.write(str(pos))
                 output_file.write('\n\n')
                 output_file.write(str(tokenized))
+
+
+if __name__ == '__main__':
+    pass
