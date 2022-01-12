@@ -7,18 +7,13 @@
 import os
 import random
 from konlpy.tag import Okt
+from vocabulary.vocab_clean import clean_vocab
 
 STOPWORDS_POS = ['URL', 'Email', 'ScreenName', 'Hashtag', 'KoreanParticle', 'Punctuation', 'Foreign', 'Alpha', 'Number',
                  'Unknown']
 CONTENT_POS = ['Noun', 'Verb', 'Adjective', 'Adverb']
 
-
-# PUNCTUATION = "`` '' ' . , ? ! ) ( % / - _ -LRB- -RRB- SYM : ;".split(" ")
-# def remove_special_char(raw_text):
-#     for x in PUNCTUATION:
-#         raw_text = raw_text.replace(x, "")
-#     punc_removed = re.sub('\s+', ' ', raw_text)
-#     return punc_removed
+CLEAN_VOCAB = clean_vocab
 
 
 def remove_stop_words(token_pos_tuple, content_only=False):
@@ -27,24 +22,25 @@ def remove_stop_words(token_pos_tuple, content_only=False):
     :param token_pos_tuple: list of tuple consisting of token and POS [('열심히', 'Adverb'), ('코딩', 'Noun')...]
     :return: list of tokens without stopwords
     """
-    tokenized = []
+    pos_tuple_cleaned = []
 
     if content_only:  # include only content words:
         for index, pair in enumerate(token_pos_tuple):
             if pair[1] in CONTENT_POS:  # tuple[1] = POS
-                tokenized.append(pair[0])
+                pos_tuple_cleaned.append(pair)
 
     else:  # include all words (function words + content words)
         for index, pair in enumerate(token_pos_tuple):
             if pair[1] not in STOPWORDS_POS:
-                tokenized.append(pair[0])
+                pos_tuple_cleaned.append(pair)
 
-    return tokenized
+    return pos_tuple_cleaned
 
 
-def tokenize(data, content_only=False):
+def tokenize(data, content_only=False, remove_typo=True):
     """
     tokenize sequences using okt tokenizer from konlpy.
+    :param remove_typo: boolean if True, remove typo tokens using dictionary
     :param data: str, raw text
     :param content_only: boolean, if True, only content words (verb, noun, adjective, adverb) are included in the output.
     :return:
@@ -52,12 +48,19 @@ def tokenize(data, content_only=False):
     okt = Okt()
 
     # tokenize (verb stemmer included)
-    pos_tuple = okt.pos(data, norm=True, stem=True)
+    pos_tuple_all = okt.pos(data, norm=True, stem=True)
 
     # remove stopwords
-    tokenized = remove_stop_words(pos_tuple, content_only=content_only)
+    pos_tuple_cleaned = remove_stop_words(pos_tuple_all, content_only=content_only)
 
-    return pos_tuple, tokenized
+    # remove typos
+    if remove_typo:
+        pos_tuple_cleaned = [item for item in pos_tuple_cleaned if item in CLEAN_VOCAB]
+
+    # separate lists for tokens
+    tokens_cleaned = [item[0] for item in pos_tuple_cleaned]
+
+    return pos_tuple_all, pos_tuple_cleaned, tokens_cleaned
 
 
 def write_tokenized_output(number_of_files=5):
@@ -74,18 +77,19 @@ def write_tokenized_output(number_of_files=5):
         file_dir = "../data/selected/" + file
         with open(file_dir, encoding='utf-8') as f:
             lines = f.read()
-            pos, tokenized = tokenize(lines)
-            # print(lines)
-            # print(pos)
-            # print(tokenized)
+            pos_all, _, tokenized = tokenize(lines)
             output_dir = "../data/output/" + file[:-4] + "_Output.txt"
             with open(output_dir, "w", encoding='utf-8') as output_file:
                 output_file.write(lines)
                 output_file.write('\n\n')
-                output_file.write(str(pos))
+                output_file.write(str(pos_all))
                 output_file.write('\n\n')
                 output_file.write(str(tokenized))
 
 
 if __name__ == '__main__':
-    pass
+    txt = "안녕 이건 텍스트야! 예시 텍스트인데 나 어떄? 예뻐? 3000만큼 사랑해 ㅎㅎ"
+    pos_tuple_all, pos_tuple_cleaned, tokens_cleaned = tokenize(txt, remove_typo=True, content_only=True)
+    print(pos_tuple_all)
+    print(pos_tuple_cleaned)
+    print(tokens_cleaned)
