@@ -9,12 +9,12 @@ from src.ld_calculator import calculate_all_ld
 
 if __name__ == '__main__':
     PATH = '../data'
-    ld_index = ['ttr', 'root_ttr', 'log_ttr', 'maas_ttr', 'mattr', 'msttr', 'hdd', 'mtld', 'mtld_ma_bid', 'mtld_ma_wrap']
-
+    df_index = ['ttr', 'root_ttr', 'log_ttr', 'maas_ttr', 'mattr', 'msttr', 'hdd', 'mtld', 'mtld_ma_bid',
+                'mtld_ma_wrap', 'token', 'type', 'raw', 'tokenized']
 
     # read data
     txt_id, txt_list = read_texts_into_lists(PATH)
-    output_df = pd.DataFrame(index=txt_id, columns=ld_index)
+    output_df = pd.DataFrame(index=txt_id, columns=df_index)
 
     # tokenize and calculate the LDs per text
     for index, txt in enumerate(txt_list):
@@ -26,8 +26,12 @@ if __name__ == '__main__':
         print(tokenized)
         print(pos_tuple)
         _, ld_scores = calculate_all_ld(tokenized)  # calculate LDs for this text
+        # add additional columns (token, type, raw, tokenized)
+        ld_scores.append(len(tokenized))  # token
+        ld_scores.append(len(set(tokenized)))  # type
+        ld_scores.append(txt)  # raw text
+        ld_scores.append(tokenized)  # tokenized
         output_df.loc[txt_id[index]] = ld_scores
 
-
     # write dataframe to excel
-    output_df.to_excel("ld_output.xlsx", encoding='utf-8')  # output saved in data dir
+    output_df.to_excel("ld_output_twotexts.xlsx", encoding='utf-8')  # output saved in data dir
