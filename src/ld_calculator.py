@@ -207,7 +207,8 @@ def calculate_all_ld(tokenized):
     :return:
     """
     ld_scores = list()
-    ld_index = ['ttr', 'root_ttr', 'log_ttr', 'maas_ttr', 'mattr', 'msttr', 'hdd', 'mtld', 'mtld_ma_bid', 'mtld_ma_wrap']
+    ld_index = ['ttr', 'root_ttr', 'log_ttr', 'maas_ttr', 'mattr', 'msttr', 'hdd', 'mtld', 'mtld_ma_bid',
+                'mtld_ma_wrap']
     ld_scores.append(ttr(tokenized))
     ld_scores.append(root_ttr(tokenized))
     ld_scores.append(log_ttr(tokenized))

@@ -34,4 +34,4 @@ if __name__ == '__main__':
         output_df.loc[txt_id[index]] = ld_scores
 
     # write dataframe to excel
-    output_df.to_excel("ld_output_twotexts.xlsx", encoding='utf-8')  # output saved in data dir
+    output_df.to_excel("ld_output.xlsx", encoding='utf-8')  # output saved in data dir
