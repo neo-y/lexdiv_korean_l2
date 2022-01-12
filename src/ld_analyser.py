@@ -11,7 +11,6 @@ Before running this script!
 2. change CONTENT_ONLY variable (boolean) - if true, only take content words, if false, analyse all words
 """
 
-
 if __name__ == '__main__':
     PATH = '../data'
     CONTENT_ONLY = False
@@ -24,13 +23,13 @@ if __name__ == '__main__':
 
     # tokenize and calculate the LDs per text
     for index, txt in enumerate(txt_list):
-        pos_tuple, tokenized = tokenize(txt, content_only=CONTENT_ONLY)
+        pos_tuple_all, _, tokenized = tokenize(txt, content_only=CONTENT_ONLY, remove_typo=True)
         # print to see output (TODO make it as argument)
         print(index)
         print(txt_id[index])
         print(txt)
         print(tokenized)
-        print(pos_tuple)
+        print(pos_tuple_all)
         _, ld_scores = calculate_all_ld(tokenized)  # calculate LDs for this text
         # add additional columns (token, type, raw, tokenized)
         ld_scores.append(len(tokenized))  # token
