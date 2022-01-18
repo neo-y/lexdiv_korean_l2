@@ -7,25 +7,28 @@ from src.ld_calculator import calculate_all_ld
 
 """
 This script makes excel file with all lexical diversity scores for each text
-Before running this script!
-1. change PATH variable to the directory where texts exist
-2. change CONTENT_ONLY variable (boolean) - if true, only take content words, if false, analyse all words
 """
 
-if __name__ == '__main__':
-    PATH = '../data'
-    CONTENT_ONLY = False
-    REMOVE_TYPO = True
+
+def make_ld_matrix(path='../data', tokenizer='okt'):
+    """
+    using a tokenizer (argument), tokenize and calculate all files in the path (argument), write output as excel
+    :param path: str, path where texts exist
+    :param tokenizer: str, possible options: (okt, komoran, mecab, kkma, hannanum)
+    :return:
+    """
+    # CONTENT_ONLY = False
+    # REMOVE_TYPO = True
     df_index = ['ttr', 'root_ttr', 'log_ttr', 'maas_ttr', 'mattr', 'msttr', 'hdd', 'mtld', 'mtld_ma_bid',
                 'mtld_ma_wrap', 'token', 'type', 'raw', 'tokenized']
 
     # read data
-    txt_id, txt_list = read_texts_into_lists(PATH)
+    txt_id, txt_list = read_texts_into_lists(path)
     output_df = pd.DataFrame(index=txt_id, columns=df_index)
 
     # tokenize and calculate the LDs per text
     for index, txt in enumerate(txt_list):
-        pos_tuple_all, _, tokenized = tokenize(txt, content_only=CONTENT_ONLY, remove_typo=REMOVE_TYPO)
+        pos_tuple_all, _, tokenized = tokenize(tokenizer=tokenizer, data=txt)
         # print to see output (TODO make it as argument)
         print(index)
         print(txt_id[index])
@@ -41,4 +44,16 @@ if __name__ == '__main__':
         output_df.loc[txt_id[index]] = ld_scores
 
     # write dataframe to excel
-    output_df.to_excel("ld_output.xlsx", encoding='utf-8')  # output saved in data dir
+    output_path = PATH + '/' + tokenizer + "_" + "ld_output.xlsx"
+    output_df.to_excel(output_path, encoding='utf-8')  # output saved in data dir
+
+
+if __name__ == '__main__':
+    PATH = '../data'
+    make_ld_matrix(path=PATH, tokenizer='okt')
+    make_ld_matrix(path=PATH, tokenizer='komoran')
+    make_ld_matrix(path=PATH, tokenizer='mecab')
+    make_ld_matrix(path=PATH, tokenizer='kkma')
+    make_ld_matrix(path=PATH, tokenizer='hannanum')
+    make_ld_matrix(path=PATH, tokenizer='komoran2')
+    make_ld_matrix(path=PATH, tokenizer='kkma2')
