@@ -33,6 +33,7 @@ def read_texts_into_lists(path):
     :param path:
     :return:
     """
+    owd = os.getcwd()
     os.chdir(path)
     text_list = list()
     txt_id = list()
@@ -44,6 +45,8 @@ def read_texts_into_lists(path):
             # call read text file function
             txt = read_text_file(file)
             text_list.append(txt)
+
+    os.chdir(owd)
 
     return txt_id, text_list
 
