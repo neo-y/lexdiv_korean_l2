@@ -3,7 +3,7 @@ This script generate vocabulary list with its frequency based on the set of toke
 """
 from src.data_reader import read_texts_into_lists
 import pandas as pd
-from src.korean_l2_tokenizer import tokenize, STOPWORDS_POS
+from src.korean_l2_tokenizer import tokenize
 from collections import Counter
 
 
@@ -21,7 +21,9 @@ def flatten_list(txts):
 
 
 if __name__ == '__main__':
-    PATH = '../data'
+    PATH = '../data/selected'
+    TOKENIZER = 'okt'
+
     vocab_df = pd.DataFrame(columns=['vocab', 'pos', 'frequency'])
 
     # read data
@@ -31,11 +33,7 @@ if __name__ == '__main__':
     raw_flatten = flatten_list(txt_list)
 
     # tokenize
-    pos_tuple_all, _, _ = tokenize(raw_flatten, content_only=False, remove_typo=False)
-
-    # clean pos_tuple (exclude stopwords from pos_tuple)
-    pos_tuple_clean = [pos for pos in pos_tuple_all if pos[
-        1] not in STOPWORDS_POS]  # TODO this is not necessary as func tokenize changed. (you can use second output from tokenize)
+    pos_tuple_all, pos_tuple_clean, _ = tokenize(tokenizer=TOKENIZER, data=raw_flatten)
 
     # calculate frequency
     pos_with_frequency = Counter(pos_tuple_clean)
@@ -47,4 +45,5 @@ if __name__ == '__main__':
     vocab_df['frequency'] = [item[1] for item in pos_with_frequency]
 
     # to excel
-    vocab_df.to_excel("vocab_list.xlsx", encoding='utf-8')
+    output_path = TOKENIZER + "_vocab_list.xlsx"
+    vocab_df.to_excel(output_path, encoding='utf-8')
