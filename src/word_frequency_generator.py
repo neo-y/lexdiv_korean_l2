@@ -7,16 +7,20 @@ from src.vocab_list_generator import flatten_list
 import pandas as pd
 from collections import Counter
 import re
+import string
 
 if __name__ == '__main__':
-    PATH = "../data/selected"
+    PATH = "../data"
 
     word_df = pd.DataFrame(columns=['word', 'frequency'])
     _, text_list = read_texts_into_lists(PATH)
     text_all = flatten_list(text_list)
 
     # delete basic punctuation
-    text_all = re.sub(r'[\.,!?\'\"]', '', text_all)
+    punc = string.punctuation
+    pattern = r"[{}]".format(punc)
+    text_all = re.sub(pattern, '', text_all)
+    text_all = text_all.strip()
 
     # split into words
     token_list = text_all.split(' ')
