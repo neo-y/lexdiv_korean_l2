@@ -201,23 +201,25 @@ def mtld_ma_wrap(text,
     return mtld
 
 
-def calculate_all_ld(tokenized):
+def calculate_all_ld(tokenized_txt):
     """
-    :param tokenized:
-    :return:
+    Calculate all LD scores listed above.
+    Input is tokenized text (single text)
+    :param tokenized_txt: list, token elements in a list of a single text
+    :return: tuple, (ld_index, ld_scores)
     """
     ld_scores = list()
     ld_index = ['ttr', 'root_ttr', 'log_ttr', 'maas_ttr', 'mattr', 'msttr', 'hdd', 'mtld', 'mtld_ma_bid',
                 'mtld_ma_wrap']
-    ld_scores.append(ttr(tokenized))
-    ld_scores.append(root_ttr(tokenized))
-    ld_scores.append(log_ttr(tokenized))
-    ld_scores.append(maas_ttr(tokenized))
-    ld_scores.append(mattr(tokenized))
-    ld_scores.append(msttr(tokenized))
-    ld_scores.append(hdd(tokenized))
-    ld_scores.append(mtld(tokenized))
-    ld_scores.append(mtld_ma_bid(tokenized))
-    ld_scores.append(mtld_ma_wrap(tokenized))
+    ld_scores.append(ttr(tokenized_txt))
+    ld_scores.append(root_ttr(tokenized_txt))
+    ld_scores.append(log_ttr(tokenized_txt))
+    ld_scores.append(maas_ttr(tokenized_txt))
+    ld_scores.append(mattr(tokenized_txt))
+    ld_scores.append(msttr(tokenized_txt))
+    ld_scores.append(hdd(tokenized_txt))
+    ld_scores.append(mtld(tokenized_txt))
+    ld_scores.append(mtld_ma_bid(tokenized_txt))
+    ld_scores.append(mtld_ma_wrap(tokenized_txt))
 
     return ld_index, ld_scores
