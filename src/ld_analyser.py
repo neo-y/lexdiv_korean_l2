@@ -49,11 +49,11 @@ def make_ld_matrix(path='../data', tokenizer='okt'):
 
 
 if __name__ == '__main__':
-    PATH = '../data'
-    make_ld_matrix(path=PATH, tokenizer='okt')
-    make_ld_matrix(path=PATH, tokenizer='komoran')
-    make_ld_matrix(path=PATH, tokenizer='mecab')
-    make_ld_matrix(path=PATH, tokenizer='kkma')
+    PATH = '/Users/hakyungsung/Documents/GitHub/lexdiv_korean_l2/NIKL'
+    # make_ld_matrix(path=PATH, tokenizer='okt')
+    # make_ld_matrix(path=PATH, tokenizer='komoran')
+    # make_ld_matrix(path=PATH, tokenizer='mecab')
+    # make_ld_matrix(path=PATH, tokenizer='kkma')
     make_ld_matrix(path=PATH, tokenizer='hannanum')
-    make_ld_matrix(path=PATH, tokenizer='komoran2')
-    make_ld_matrix(path=PATH, tokenizer='kkma2')
+    # make_ld_matrix(path=PATH, tokenizer='komoran2')
+    # make_ld_matrix(path=PATH, tokenizer='kkma2')
