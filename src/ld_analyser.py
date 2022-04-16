@@ -1,4 +1,4 @@
-from src.korean_l2_tokenizer import tokenize
+from src.korean_tokenizer import tokenize
 from src.data_reader import read_texts_into_lists
 import pandas as pd
 from src.ld_calculator import calculate_all_ld
