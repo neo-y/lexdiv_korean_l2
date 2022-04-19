@@ -1,3 +1,5 @@
+import logging
+
 import win32com.client
 import os
 import codecs
@@ -37,6 +39,7 @@ def typodelete(txt_id, txt_list, save=True):
     # save the raw text into ms word form to use ms word typo corrector
     current_time = current_time_as_str()
     file_path = os.path.abspath(current_time + ".txt")
+    logging.info("Concatenating files into a single .txt . . .")
     with codecs.open(file_path, 'w', encoding='utf-8') as f:
         index = 0
         for text in txt_list:
@@ -47,10 +50,12 @@ def typodelete(txt_id, txt_list, save=True):
 
     # open the ms word document
     msword = win32com.client.DispatchEx('Word.Application')
+    logging.info("Loading .txt into MS Word . . .")
     doc = msword.Documents.Open(file_path)
     assert int(doc.Paragraphs.Count) == len(txt_list)
 
     # for each text(Paragraph in word), detect error
+    logging.info("Processing text started . . .")
     for i, p in enumerate(doc.Paragraphs):  # process per text
         typos = p.Range.SpellingErrors
         item = []
@@ -74,14 +79,15 @@ def typodelete(txt_id, txt_list, save=True):
     os.remove(file_path)
 
     if save:
-        file_path = file_path + ".xlsx"
+        file_path = "processed_data_" + current_time + ".xlsx"
+        logging.info("Saving file . . .") # todo change name to absolute path
         output_df.to_excel(file_path, encoding='utf-8')
 
     return output_df
 
 
 if __name__ == '__main__':
-    path = "../data"
+    path = "../data/selected"
     # read data
     txt_id, txt_list = read_texts_into_lists(path)
     output_df = typodelete(txt_id, txt_list, save=True)
