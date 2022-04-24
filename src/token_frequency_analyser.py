@@ -1,7 +1,7 @@
 """
 This script generates token frequency list of all text files in a path based on a tokenizer or space split.
 """
-from src.data_processor import flatten_list
+from src.util import flatten_list
 from src.korean_tokenizer import tokenize
 from src.util import current_time_as_str
 from src.data_reader import read_texts_into_lists

@@ -10,17 +10,7 @@ from src.data_reader import read_texts_into_lists
 from src.util import current_time_as_str
 
 
-def flatten_list(txts):
-    """
-    input: list of texts
-    output: flattend string (list concatenated)
-    :param txts:
-    :return:
-    """
-    flatten = str()
-    for txt in txts:
-        flatten = flatten + txt
-    return flatten
+
 
 
 def typodelete(txt_id, txt_list, save=True):
@@ -72,6 +62,8 @@ def typodelete(txt_id, txt_list, save=True):
         item.append(typo_list)
         item.append(processed)
         output_df.loc[txt_id[i]] = item
+        print(txt_id[i])
+        print(item)
 
     # close and delete temporary files
     doc.Close(0)
@@ -80,14 +72,14 @@ def typodelete(txt_id, txt_list, save=True):
 
     if save:
         file_path = "processed_data_" + current_time + ".xlsx"
-        logging.info("Saving file . . .") # todo change name to absolute path
+        logging.info("Saving processed text file to . . .") # todo change name to absolute path
         output_df.to_excel(file_path, encoding='utf-8')
 
     return output_df
 
 
 if __name__ == '__main__':
-    path = "../data/selected"
+    path = "../data/4208-data-total"
     # read data
     txt_id, txt_list = read_texts_into_lists(path)
     output_df = typodelete(txt_id, txt_list, save=True)
