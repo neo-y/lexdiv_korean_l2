@@ -12,12 +12,9 @@ OKT_STOPWORDS = ['URL', 'Email', 'ScreenName', 'Hashtag', 'KoreanParticle', 'Pun
 
 KOMORAN_STOPWORDS = ['EP', 'EF', 'EC', 'ETN', 'ETM', 'SF', 'SE', 'SS', 'SP', 'SO', 'SW', 'SH', 'SL', 'SN', 'NF', 'NV',
                      'NA']
-KOMORAN2_STOPWORDS = ['EP', 'EF', 'EC', 'ETN', 'ETM', 'SF', 'SE', 'SS', 'SP', 'SO', 'SW', 'SH', 'SL', 'SN', 'NA']
 MECAB_STOPWORDS = ['EP', 'EF', 'EC', 'ETN', 'ETM', 'SF', 'SE', 'SSO', 'SSC', 'SC', 'SY', 'SH', 'SL', 'SN']
 KKMA_STOPWORDS = ['EPH', 'EPT', 'EPP', 'EFN', 'EFQ', 'EFO', 'EFA', 'EFI', 'EFR', 'ECE', 'ECS', 'ECD', 'ETN', 'ETD',
                   'SF', 'SE', 'SS', 'SP', 'SO', 'SW', 'OH', 'OL', 'ON', 'UN']
-KKMA2_STOPWORDS = ['EPH', 'EPT', 'EPP', 'EFN', 'EFQ', 'EFO', 'EFA', 'EFI', 'EFR', 'ECE', 'ECS', 'ECD', 'ETN', 'ETD',
-                  'SF', 'SE', 'SS', 'SP', 'SO', 'SW', 'OH', 'OL', 'ON']
 
 HANNANUM_STOPWORDS = ['E','S','F']
 
@@ -44,12 +41,8 @@ def remove_stop_words(token_pos_tuple, tokenizer, content_only=False):
         stopwords = KKMA_STOPWORDS
     elif tokenizer == 'hannanum':
         stopwords = HANNANUM_STOPWORDS
-    elif tokenizer == 'komoran2':
-        stopwords = KOMORAN2_STOPWORDS
-    elif tokenizer == 'kkma2':
-        stopwords = KKMA2_STOPWORDS
     else:
-        raise ValueError("tokenizer must be one of these options: (okt, komoran, mecab, kkma, hannanum, komoran2, kkma2)")
+        raise ValueError("tokenizer must be one of these options: (okt, komoran, mecab, kkma, hannanum)")
 
     if content_only:  # include only content words:
         for index, pair in enumerate(token_pos_tuple):
@@ -66,10 +59,8 @@ def remove_stop_words(token_pos_tuple, tokenizer, content_only=False):
 
 def tokenize(tokenizer, data, content_only=False, remove_typo=False):
     """
-    tokenize sequences using okt tokenizer from konlpy.
-    :param tokenizer: str, possible options: (okt, komoran, mecab, kkma, hannanum, komoran2, kkma2)
-                                    in komoran2, kkma2: 'possible' noun/verb tags are not treated as stopwords.
-                                                        i.e. 'possible' noun/verbs are included in output tokens
+    tokenize sequences using konlpy tokenizer.
+    :param tokenizer: str, possible options: (okt, komoran, mecab, kkma, hannanum)
     :param remove_typo: boolean if True, remove typo tokens using dictionary
     :param data: str, raw text
     :param content_only: boolean, if True, only content words (verb, noun, adjective, adverb) are included in the output.
@@ -77,16 +68,16 @@ def tokenize(tokenizer, data, content_only=False, remove_typo=False):
     """
     if tokenizer == 'okt':
         tagger = Okt()
-    elif tokenizer == 'komoran' or tokenizer == 'komoran2':
+    elif tokenizer == 'komoran':
         tagger = Komoran()
     elif tokenizer == 'mecab':
         tagger = Mecab()  # todo Mecab not available in Windows. Do error handling.
-    elif tokenizer == 'kkma' or tokenizer == 'kkma2':
+    elif tokenizer == 'kkma':
         tagger = Kkma()
     elif tokenizer == 'hannanum':
         tagger = Hannanum()
     else:
-        raise ValueError("tokenizer must be one of these options: (okt, komoran, mecab, kkma, hannanum, komoran2, kkma2)")
+        raise ValueError("tokenizer must be one of these options: (okt, komoran, mecab, kkma, hannanum)")
 
     # tokenize
     if tokenizer == 'okt':

@@ -55,5 +55,3 @@ if __name__ == '__main__':
     # make_ld_matrix(path=PATH, tokenizer='mecab')
     # make_ld_matrix(path=PATH, tokenizer='kkma')
     make_ld_matrix(path=PATH, tokenizer='hannanum')
-    # make_ld_matrix(path=PATH, tokenizer='komoran2')
-    # make_ld_matrix(path=PATH, tokenizer='kkma2')
