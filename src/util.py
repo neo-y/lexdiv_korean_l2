@@ -1,5 +1,4 @@
 from datetime import datetime
-import os
 
 
 def current_time_as_str():
@@ -11,10 +10,9 @@ def current_time_as_str():
 
 def flatten_list(txts):
     """
-    input: list of texts
-    output: flattend string (list concatenated)
-    :param txts:
-    :return:
+    flatten list of texts by concatenating
+    :param txts: str, list of texts
+    :return: str, flattened text as string
     """
     flatten = str()
     for txt in txts:
