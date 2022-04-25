@@ -6,11 +6,8 @@ import codecs
 import re
 import pandas as pd
 
-from src.data_reader import read_texts_into_lists
-from src.util import current_time_as_str
-
-
-
+from data_reader import read_texts_into_lists
+from util import current_time_as_str
 
 
 def typodelete(txt_id, txt_list, save=True):
@@ -19,7 +16,7 @@ def typodelete(txt_id, txt_list, save=True):
     :param txt_id: unique id of texts
     :param txt_list: list of texts
     :param save: boolean, if True, save the result file to excel
-    :return: dataframe with raw text, typos, and typo deleted text
+    :return: df, which contains raw text, typos, and typo deleted text
     """
 
     # make df to store results
@@ -47,6 +44,7 @@ def typodelete(txt_id, txt_list, save=True):
     # for each text(Paragraph in word), detect error
     logging.info("Processing text started . . .")
     for i, p in enumerate(doc.Paragraphs):  # process per text
+        tab_removed_raw = re.sub("\t", " ", txt_list[i])  # remove all tabs to store the data as tsv file
         typos = p.Range.SpellingErrors
         item = []
         typo_list = []
@@ -56,14 +54,14 @@ def typodelete(txt_id, txt_list, save=True):
 
         # delete typos in text
         pattern = re.compile(r'\b(?:%s)\b' % '|'.join(typo_list))
-        processed = re.sub(pattern, '', txt_list[i])
+        processed = re.sub(pattern, '', tab_removed_raw)
 
-        item.append(txt_list[i])
+        item.append(tab_removed_raw)
         item.append(typo_list)
         item.append(processed)
         output_df.loc[txt_id[i]] = item
-        print(txt_id[i])
-        print(item)
+
+        assert "\t" not in tab_removed_raw, f"File {txt_id[i]} contains tab, Please remove all tabs in the file for generating tsv file. "
 
     # close and delete temporary files
     doc.Close(0)
@@ -71,15 +69,15 @@ def typodelete(txt_id, txt_list, save=True):
     os.remove(file_path)
 
     if save:
-        file_path = "processed_data_" + current_time + ".xlsx"
-        logging.info("Saving processed text file to . . .") # todo change name to absolute path
-        output_df.to_excel(file_path, encoding='utf-8')
+        file_path = "processed_data_" + current_time + ".tsv"
+        logging.info("Saving processed text file as %s . . .", file_path)
+        output_df.to_csv(file_path, encoding='utf-8', sep='\t')
 
     return output_df
 
 
-if __name__ == '__main__':
-    path = "../data/4208-data-total"
-    # read data
-    txt_id, txt_list = read_texts_into_lists(path)
-    output_df = typodelete(txt_id, txt_list, save=True)
+# if __name__ == '__main__':
+#     path = "../data/4208-data-total"
+#     # read data
+#     txt_id, txt_list = read_texts_into_lists(path)
+#     output_df = typodelete(txt_id, txt_list, save=True)
