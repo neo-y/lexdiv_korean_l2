@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import logging
 
 
 def read_text_file(file_path):
@@ -29,19 +30,19 @@ def read_text_file(file_path):
 
 def read_texts_into_lists(path):
     """
-    TODO mark source https://www.geeksforgeeks.org/how-to-read-multiple-text-files-from-folder-in-python/
-    :param path:
-    :return:
+    read all plain text files (.txt) in the path and return text id (file name) and text contents as list
+    :param path: str, directory to the input files
+    :return: tuple (txt_id, text_list)
+                where (txt_id) is a list of file names
+                      (text_list) is a list of file contents as string
     """
     owd = os.getcwd()
     os.chdir(path)
     text_list = list()
     txt_id = list()
     for file in os.listdir():
-        # Check whether file is in text format or not
         if file.endswith(".txt"):
             txt_id.append(file)
-            # call read text file function
             txt = read_text_file(file)
             text_list.append(txt)
 
