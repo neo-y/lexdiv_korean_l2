@@ -13,7 +13,7 @@ KKMA_STOPWORDS = ["SF", "SE", "SS", "SP", "SO", "SW", "OH", "OL", "ON", "UN"]
 
 HANNANUM_STOPWORDS = ['S', 'F']
 
-STANZA_STOPWORDS = [] # TODO ADD
+STANZA_STOPWORDS = ['X', 'PUNCT', 'SYM'] # TODO ADD
 
 OKT_FUNCTIONWORDS = ["Josa", "PreEomi", "Eomi", "Suffix"]
 
@@ -69,7 +69,7 @@ def tokenize(tokenizer, text, include_function_words=True):
         stopwords = KOMORAN_STOPWORDS
         functionwords = KOMORAN_FUNCTIONWORDS
     elif tokenizer == 'mecab':
-        tagger = Mecab()
+        tagger = Mecab(dicpath='C:/mecab/mecab-ko-dic') # todo raise error 1) window env 2) if dict is not installed in the path
         stopwords = MECAB_STOPWORDS
         functionwords = MECAB_FUNCTIONWORDS
     elif tokenizer == 'kkma':
@@ -81,16 +81,14 @@ def tokenize(tokenizer, text, include_function_words=True):
         stopwords = HANNANUM_STOPWORDS
         functionwords = HANNANUM_FUNCTIONWORDS
     elif tokenizer == 'stanza':
-        tagger = stanza.Pipeline('ko', processors='tokenize,pos')
+        tagger = stanza.Pipeline('ko', processors='tokenize,pos', package='gsd')
         stopwords = STANZA_STOPWORDS
         functionwords = STANZA_FUNCTIONWORDS
     else:
         raise ValueError("tokenizer must be one of these options: (okt, komoran, mecab, kkma, hannanum, stanza)")
 
     # tokenize
-    if tokenizer == 'okt':  # 'okt' tokenize has an argument 'stem'
-        pos_tuple_all = tagger.pos(text, stem=True)
-    elif tokenizer == 'stanza':
+    if tokenizer == 'stanza':
         doc = tagger(text)
         pos_tuple_all = [(word.text, word.upos) for sent in doc.sentences for word in sent.words]
     else:
@@ -109,7 +107,7 @@ def tokenize(tokenizer, text, include_function_words=True):
 
 
 if __name__ == '__main__':
-    txt = "먹다 먹어요 먹었어요 안녕 이건 텍스트야! 예시 텍스트인데 나 어떄? 예뻐? 3000만큼 사랑해"
+    txt = "친구의 침대. 조사를 분석해요. 분석했어요. 먹다. 먹어. 먹어요. 안녕 이건 텍스트야! 예시 텍스트인데 나 어떄? 예뻐? 3000만큼 사랑해"
     pos_tuple_all, pos_tuple_cleaned, tokens_cleaned = tokenize(tokenizer='stanza', text=txt, include_function_words=True)
     print(pos_tuple_all)
     print(pos_tuple_cleaned)
