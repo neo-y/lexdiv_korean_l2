@@ -16,8 +16,8 @@ def analyse_frequency_tokenized(path, tokenizer, save=True):
     Generates token frequency list with POS using a tokenizer.
     Input is a list of .txt files, which will be tokenized using a tokenizer of a choice.
     :param path: str, a path to a list of .txt files
-    :param tokenizer: str, tokenizer of a choice
-    :param save: boolean, if True, save the result as excel file
+    :param tokenizer: str, tokenizer of a choice: possible options: (okt, kkma, hannanum, mecab, stanza, komoran)
+    :param save: boolean, if True, save the result
     :return: dataframe, token frequency table
     """
     vocab_df = pd.DataFrame(columns=['token', 'pos', 'frequency'])
@@ -29,7 +29,7 @@ def analyse_frequency_tokenized(path, tokenizer, save=True):
     raw_flatten = flatten_list(txt_list)
 
     # tokenize
-    pos_tuple_all, pos_tuple_clean, _ = tokenize(tokenizer=tokenizer, data=raw_flatten)
+    _, pos_tuple_clean, _ = tokenize(tokenizer=tokenizer, text=raw_flatten)
 
     # calculate frequency
     pos_with_frequency = Counter(pos_tuple_clean)
@@ -42,8 +42,8 @@ def analyse_frequency_tokenized(path, tokenizer, save=True):
 
     if save:
         current_time = current_time_as_str()
-        output_path = tokenizer + "_frequency_" + current_time + ".xlsx"
-        vocab_df.to_excel(output_path, encoding='utf-8')
+        output_path = tokenizer + "_frequency_" + current_time + ".tsv"
+        vocab_df.to_csv(output_path, encoding='utf-8', sep='\t')
 
     return vocab_df
 
@@ -90,9 +90,9 @@ if __name__ == '__main__':
     """
     Example usage below
     """
-    PATH = '../data/selected'
-    TOKENIZER = 'okt'  # todo fix possible tokenizer list
+    PATH = '../data/4208-data-total'
+    tokenizer_list = ['okt', 'kkma','hannanum','komoran']
 
-    frequency_df_tokenized = analyse_frequency_tokenized(PATH, TOKENIZER)
-
-    frequency_df_space_split = analyse_frequency_space_split(PATH)
+    for tokenizer in tokenizer_list:
+        _ = analyse_frequency_tokenized(PATH, tokenizer, save=True)
+        print("saved result of ", tokenizer)
