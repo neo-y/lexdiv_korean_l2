@@ -42,10 +42,16 @@ def read_texts_into_lists(path):
     txt_id = list()
     for file in os.listdir():
         if file.endswith(".txt"):
+            txt = read_text_file(file)
+            if len(txt) < 1:
+                logging.info("%s is empty file. Skipped", file)
+                continue
             txt_id.append(file)
             txt = read_text_file(file)
             text_list.append(txt)
 
     os.chdir(owd)
+
+    logging.info("%s files read successfully.", len(txt_id))
 
     return txt_id, text_list
