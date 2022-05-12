@@ -13,7 +13,7 @@ KKMA_STOPWORDS = ["SF", "SE", "SS", "SP", "SO", "SW", "OH", "OL", "ON", "UN"]
 
 HANNANUM_STOPWORDS = ['S', 'F']
 
-STANZA_STOPWORDS = ['X', 'PUNCT', 'SYM'] # TODO ADD
+STANZA_STOPWORDS = ['PUNCT', 'SYM', 'X']
 
 OKT_FUNCTIONWORDS = ["Josa", "PreEomi", "Eomi", "Suffix"]
 
