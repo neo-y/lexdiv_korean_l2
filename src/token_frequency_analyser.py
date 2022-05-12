@@ -91,7 +91,7 @@ if __name__ == '__main__':
     Example usage below
     """
     PATH = '../data/4208-data-total'
-    tokenizer_list = ['okt', 'kkma','hannanum','komoran']
+    tokenizer_list = ['okt', 'kkma','hannanum','komoran', 'stanza']
 
     for tokenizer in tokenizer_list:
         _ = analyse_frequency_tokenized(PATH, tokenizer, save=True)
