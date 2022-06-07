@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import logging
+import string
+from string import digits
 
 
 def read_text_file(file_path):
@@ -28,9 +30,10 @@ def read_text_file(file_path):
 #     return df_clean
 
 
-def read_texts_into_lists(path):
+def read_texts_into_lists(path, remove_punc_num=True):
     """
     read all plain text files (.txt) in the path and return text id (file name) and text contents as list
+    :param remove_punc_num: bool, if set True, remove punctuation including special character and number in the text.
     :param path: str, directory to the input files
     :return: tuple (txt_id, text_list)
                 where (txt_id) is a list of file names
@@ -52,6 +55,18 @@ def read_texts_into_lists(path):
 
     os.chdir(owd)
 
+    if remove_punc_num:
+        #text_list = [txt.translate(str.maketrans('', '', string.punctuation)) for txt in text_list] # remove punctuation
+        text_list = [txt.translate(str.maketrans('', '', digits)) for txt in text_list] # remove number
+
     logging.info("%s files read successfully.", len(txt_id))
 
     return txt_id, text_list
+
+
+if __name__ == '__main__':
+    _, text_list1 = read_texts_into_lists("../data/testset-4", remove_punc_num=True)
+    _, text_list2 = read_texts_into_lists("../data/testset-4", remove_punc_num=False)
+
+    print(text_list1)
+    print(text_list2)
