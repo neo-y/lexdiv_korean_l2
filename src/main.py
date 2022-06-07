@@ -10,6 +10,8 @@ from util import current_time_as_str
 
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 logging.basicConfig(level=logging.INFO)
+logging.getLogger("tensorflow").setLevel(logging.CRITICAL)
+logging.getLogger("stanza").setLevel(logging.WARNING)
 
 if __name__ == '__main__':
     for handler in logging.root.handlers[:]:
@@ -23,18 +25,26 @@ if __name__ == '__main__':
     parser.add_argument("-t", "--tokenizer", nargs='+', required=True,
                         help="Tokenizers: (okt, komoran, mecab, kkma, hannanum, stanza). You can give multiple tokenizers ex) -t kkma komoran")
     parser.add_argument("-a", "--all", action="store_true",
-                        help="Do analysis on all possible combinations on the given tokenizer sets (function word T&F x parallel T&F)")
+                        help="""Do analysis on all possible combinations on the given tokenizer sets (function word T&F x parallel T&F)
+                             \n Note that functionwords=false is not provided in stanza.
+                             \n Argument --functionwords and --parallel are ignored if given. """)
     parser.add_argument("-f", "--functionwords", action='store_true',
-                        help="Do analysis on both function and content words. If this argument not given, do analysis only on content words.")
+                        help="""Do analysis on both function and content words. If this argument not given, do analysis only on content words.
+                                \n Note that functionwords=false in not provided in stanza. """)
     parser.add_argument("-p", "--parallel", action='store_true', help="do parallel analysis.")
     args = parser.parse_args()
+
+
+    if "stanza" in args.tokenizer and not args.functionwords: # if the user wants to exclude functionwords in stanza
+        if not args.all:
+            raise ValueError("Stanza does not provide functionwords=False. Please give functionwords argument for stanza tokenizer. ")
 
     # configuration information
     logging.info("-----------Configuration----------")
     logging.info("Selected Tokenizer = %s", args.tokenizer)
     if args.all:
         logging.info("Four different analysis will be done.")
-        logging.info("(functionword True, False) x (Prallel analysis True, False)")
+        logging.info("(functionword True, False) x (Parallel analysis True, False)")
     else:
         logging.info("Include Function Words = %s", args.functionwords)
         logging.info("Parallel Analysis = %s", args.parallel)

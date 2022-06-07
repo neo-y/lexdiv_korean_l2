@@ -28,7 +28,6 @@ KKMA_FUNCTIONWORDS = ["JKS", "JKC", "JKG", "JKO", "JKM", "JKI", "JKQ", "JC", "JX
 
 HANNANUM_FUNCTIONWORDS = ["J", "E", "X"]
 
-STANZA_FUNCTIONWORDS = [] # TODO ADD
 
 
 def remove_pos(token_pos_tuple, pos_list):
@@ -60,6 +59,11 @@ def tokenize(tokenizer, text, include_function_words=True):
                   pos_tuple_cleaned consists of tuple ('token', 'Part-Of-Speech') of contents words (+ function words if the param include_function_words=True)
                   tokens_cleaned is a list of stopword removed tokens (if the param include_function_words=True, function words are also included)
     """
+
+    # filter out stanza with include_function_words=False
+    if tokenizer =='stanza' and not include_function_words:
+        return
+
     if tokenizer == 'okt':
         tagger = Okt()
         stopwords = OKT_STOPWORDS
@@ -83,7 +87,6 @@ def tokenize(tokenizer, text, include_function_words=True):
     elif tokenizer == 'stanza':
         tagger = stanza.Pipeline('ko', processors='tokenize,pos', package='gsd')
         stopwords = STANZA_STOPWORDS
-        functionwords = STANZA_FUNCTIONWORDS
     else:
         raise ValueError("tokenizer must be one of these options: (okt, komoran, mecab, kkma, hannanum, stanza)")
 

@@ -83,7 +83,7 @@ def tokenize_n_make_ld_matrix(data, tokenizer, include_function_words, parallel_
     if skipped:
         logging.info("%s files are skipped due to length problem", skipped)
         logging.info("List of skipped files: ")
-        logging.info(skippedl)
+        logging.info("%s", skippedl)
 
 
 
@@ -135,10 +135,11 @@ def tokenize_n_make_ld_matrix(data, tokenizer, include_function_words, parallel_
 #     #     tokens_cleaned = text  # todo delete
 
 
-# if __name__ == '__main__':
-#     from taaled import ld
-#     import glob
-#     path = '../data/testset-eng'
-#     files = glob.glob(path + "/*.txt")
-#     ld.ldwrite(files, "(nodelete)_prll_tmp_result_from_orig_to_compare.tsv", mx=200, prll=True)
-#     ld.ldwrite(files, "(nodelete)noprll_tmp_result_from_orig_to_compare.tsv", mx=200, prll=False)
+if __name__ == '__main__':
+    from taaled import ld
+    import glob
+    path = '../data/testset-eng'
+    files = glob.glob(path + "/*.txt")
+    # ld.ldwrite(files, "(nodelete)_prll_tmp_result_from_orig_to_compare.tsv", mx=200, prll=True)
+    # ld.ldwrite(files, "(nodelete)noprll_tmp_result_from_orig_to_compare.tsv", mx=200, prll=False)
+    ld.ldwrite(files, "tmp.tsv", mx=200, prll=True)
