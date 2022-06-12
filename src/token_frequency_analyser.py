@@ -29,7 +29,7 @@ def analyse_frequency_tokenized(path, tokenizer, save=True):
     raw_flatten = flatten_list(txt_list)
 
     # tokenize
-    _, pos_tuple_clean, _ = tokenize(tokenizer=tokenizer, text=raw_flatten)
+    _, pos_tuple_clean, _ = tokenize(tokenizer=tokenizer, text=raw_flatten) # function word not removed
 
     # calculate frequency
     pos_with_frequency = Counter(pos_tuple_clean)

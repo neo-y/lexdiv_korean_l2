@@ -5,6 +5,7 @@ import logging
 from ld_analyser import tokenize_n_make_ld_matrix
 import warnings
 import numpy as np
+import sys
 
 from util import current_time_as_str
 
@@ -14,10 +15,19 @@ logging.getLogger("tensorflow").setLevel(logging.CRITICAL)
 logging.getLogger("stanza").setLevel(logging.WARNING)
 
 if __name__ == '__main__':
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
+    a_logger = logging.getLogger()
+    a_logger.setLevel(logging.DEBUG)
     log_file = current_time_as_str() + "_logfile.log"
-    logging.basicConfig(filename=log_file, filemode='w', level=logging.INFO)
+    output_file_handler = logging.FileHandler(log_file)
+    stdout_handler = logging.StreamHandler(sys.stdout)
+
+    a_logger.addHandler(output_file_handler)
+    a_logger.addHandler(stdout_handler)
+
+    # for handler in logging.root.handlers[:]:
+    #     logging.root.removeHandler(handler)
+    # log_file = current_time_as_str() + "_logfile.log"
+    # logging.basicConfig(filename=log_file, filemode='w', level=logging.INFO)
 
     parser = argparse.ArgumentParser()  # todo make argument optional and set default param (most impt, best performing)
     parser.add_argument("-i", "--inputdir", required=True,
@@ -26,11 +36,11 @@ if __name__ == '__main__':
                         help="Tokenizers: (okt, komoran, mecab, kkma, hannanum, stanza). You can give multiple tokenizers ex) -t kkma komoran")
     parser.add_argument("-a", "--all", action="store_true",
                         help="""Do analysis on all possible combinations on the given tokenizer sets (function word T&F x parallel T&F)
-                             \n Note that functionwords=false is not provided in stanza.
-                             \n Argument --functionwords and --parallel are ignored if given. """)
+                             Note that functionwords=false is not provided in stanza.
+                             Argument --functionwords and --parallel are ignored if given. """)
     parser.add_argument("-f", "--functionwords", action='store_true',
                         help="""Do analysis on both function and content words. If this argument not given, do analysis only on content words.
-                                \n Note that functionwords=false in not provided in stanza. """)
+                                Note that functionwords=false in not provided in stanza. """)
     parser.add_argument("-p", "--parallel", action='store_true', help="do parallel analysis.")
     args = parser.parse_args()
 
@@ -55,7 +65,7 @@ if __name__ == '__main__':
     typo_deleted_df = typodelete(txt_id, text_list)
 
     # tokenize and analyse
-    if args.all:
+    if args.all: # todo change to tokenize_n_make_ld_matrix_all_combi
         f_options = [True, False]
         p_options = [True, False]
         for tokenizer in args.tokenizer:
@@ -75,5 +85,3 @@ if __name__ == '__main__':
                                       include_function_words=args.functionwords, parallel_analysis=args.parallel)
 
     logging.info("FINISHED")
-
-    # todo enable log to stdoutput and file
