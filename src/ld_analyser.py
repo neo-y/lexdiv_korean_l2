@@ -1,4 +1,4 @@
-from korean_tokenizer import tokenize
+from korean_tokenizer import tokenize, remove_function_words
 from data_reader import read_texts_into_lists
 import pandas as pd
 from taaled import parallel, lexdiv
@@ -21,6 +21,11 @@ def tokenize_n_make_ld_matrix(data, tokenizer, include_function_words, parallel_
     :param mx: int, minimum length of a text for parallel analysis
     :return: none
     """
+
+    # filter out stanza with include_function_words=False
+    if tokenizer == 'stanza' and not include_function_words:
+        return
+
     logging.info("Start LD analysis . . .")
     # indexes
     loi = ["ntokens", "ntypes", "mtld", "mtldo", "mattr", "ttr", "rttr", "lttr", "maas", "msttr", "hdd"]
@@ -48,15 +53,17 @@ def tokenize_n_make_ld_matrix(data, tokenizer, include_function_words, parallel_
     skippedl = []
 
     for i, text in enumerate(text_processed):
-        _, _, tokens_cleaned = tokenize(tokenizer, text, include_function_words=include_function_words)
-        if len(tokens_cleaned) < 1: # nothing to analysis
+        _, pos_tuple, tokens_cleaned = tokenize(tokenizer, text)
+        if not include_function_words:
+            _, tokens_cleaned = remove_function_words(pos_tuple, tokenizer)
+        if len(tokens_cleaned) < 1:  # nothing to analysis
             logging.info("%s has no analysable tokens. Skipping", text_id[i])
-            skipped +=1
+            skipped += 1
             skippedl.append(text_id[i])
             continue
         if parallel_analysis:
-            if len(tokens_cleaned) < mx: # in case the text is too short for parallel analysis
-                skipped +=1
+            if len(tokens_cleaned) < mx:  # in case the text is too short for parallel analysis
+                skipped += 1
                 skippedl.append(text_id[i])
                 continue
             ld_lists = parallel(text=tokens_cleaned, clss=True, functd=None, funct=lexdiv, loi=loi, mx=mx).ldvals
@@ -65,20 +72,18 @@ def tokenize_n_make_ld_matrix(data, tokenizer, include_function_words, parallel_
                 for index in loi:  # iterate through index list:
                     outl.append(str(ld_lists[length][index]))  # add index to outr list (in same order as loi list)
                 outf.write("\n" + '\t'.join(outl))  # write row to file
-        else: # no parallel analysis
+        else:  # no parallel analysis
             ldout = lexdiv(tokens_cleaned).vald  # get dictionary version of lexical diversity output
             outl = [text_id[i]]  # list of items to write, will add each index below
             for index in loi:  # iterate through index list:
                 outl.append(str(ldout[index]))  # add index to outr list (in same order as loi list)
             outf.write("\n" + '\t'.join(outl))  # write row to file
 
-
     outf.flush()
     outf.close()
 
-    logging.info("Analysis on %s files completed successfully", len(text_id)-skipped)
+    logging.info("Analysis on %s files completed successfully", len(text_id) - skipped)
     logging.info("The result is saved as: %s", file_name)
-
 
     if skipped:
         logging.info("%s files are skipped due to length problem", skipped)
@@ -86,6 +91,102 @@ def tokenize_n_make_ld_matrix(data, tokenizer, include_function_words, parallel_
         logging.info("%s", skippedl)
 
 
+def tokenize_n_make_ld_matrix_all_combi(data, tokenizer, mx=200):
+    """ #todo docstring
+    Tokenize and calculate all files in the df data and write output as tsv
+    (This code includes partial modification of TAALED package source code)
+    :param data: df, dataframe with three columns: text id, raw text, processed (typo removed) text, where df index is text file name
+    :param tokenizer: str, possible options: (okt, komoran, mecab, kkma, hannanum, stanza)
+    :param mx: int, minimum length of a text for parallel analysis
+    :return: none
+    """
+
+    logging.info("Start LD analysis . . .")
+    # indexes
+    loi = ["ntokens", "ntypes", "mtld", "mtldo", "mattr", "ttr", "rttr", "lttr", "maas", "msttr", "hdd"]
+
+    text_id = data.index
+    text_processed = data['processed']
+
+    # tokenize
+    pos_tuple_list = []
+    tokens_cleaned_list = []
+    for i, text in enumerate(text_processed):
+        _, pos_tuple, tokens_cleaned = tokenize(tokenizer, text)
+        pos_tuple_list.append(pos_tuple)
+        tokens_cleaned_list.append(tokens_cleaned)
+
+    f_options = [True, False]
+    p_options = [True, False]
+
+    # loop through all combination with tokenized data
+    for f in f_options:
+        for p in p_options:
+            if tokenizer == 'stanza' and not f: # no function word exclude option in stanza
+                continue
+            # set file name and configuration
+            current_time = current_time_as_str()
+            if f:
+                file_name = current_time + "_" + tokenizer + "_all_words.tsv"
+                if p:
+                    file_name = current_time + "_" + tokenizer + "_all_words_prll.tsv"
+            else:
+                file_name = current_time + "_" + tokenizer + "_content_only.tsv"
+                if p:
+                    file_name = current_time + "_" + tokenizer + "_content_only_prll.tsv"
+
+            outf = open(file_name, "w", encoding='utf-8')
+            if p:
+                outf.write("filename" + '\t' + "length" + '\t' + '\t'.join(loi))
+            else:
+                outf.write("filename" + '\t' + '\t'.join(loi))
+
+            if not f: # remove function words
+                tokens_cleaned_list = [remove_function_words(pos_tuple, tokenizer)[1] for pos_tuple in pos_tuple_list]
+
+            skipped = 0
+            skippedl = []
+
+            config = "Tokenizer: {}, Include Function Words: {}, Parallel Analysis: {}".format(tokenizer, f, p)
+            logging.info("\n\n\n================ %s =================", config)
+
+            for i, tokens_cleaned in enumerate(tokens_cleaned_list):
+
+                if len(tokens_cleaned) < 1:  # nothing to analysis
+                    logging.info("%s has no analysable tokens. Skipping", text_id[i])
+                    skipped += 1
+                    skippedl.append(text_id[i])
+                    continue
+                if p:
+                    if len(tokens_cleaned) < mx:  # in case the text is too short for parallel analysis
+                        skipped += 1
+                        skippedl.append(text_id[i])
+                        continue
+                    ld_lists = parallel(text=tokens_cleaned, clss=True, functd=None, funct=lexdiv, loi=loi,
+                                        mx=mx).ldvals
+                    for length in ld_lists:  # iterate through text slices
+                        outl = [text_id[i], str(length)]  # list of items to write, will add each index below
+                        for index in loi:  # iterate through index list:
+                            outl.append(
+                                str(ld_lists[length][index]))  # add index to outr list (in same order as loi list)
+                        outf.write("\n" + '\t'.join(outl))  # write row to file
+                else:  # no parallel analysis
+                    ldout = lexdiv(tokens_cleaned).vald  # get dictionary version of lexical diversity output
+                    outl = [text_id[i]]  # list of items to write, will add each index below
+                    for index in loi:  # iterate through index list:
+                        outl.append(str(ldout[index]))  # add index to outr list (in same order as loi list)
+                    outf.write("\n" + '\t'.join(outl))  # write row to file
+
+            outf.flush()
+            outf.close()
+
+            logging.info("Analysis on %s files completed successfully", len(text_id) - skipped)
+            logging.info("The result is saved as: %s", file_name)
+
+            if skipped:
+                logging.info("%s files are skipped due to length problem", skipped)
+                logging.info("List of skipped files: ")
+                logging.info("%s", skippedl)
 
 
 # if __name__ == '__main__':
@@ -138,6 +239,7 @@ def tokenize_n_make_ld_matrix(data, tokenizer, include_function_words, parallel_
 if __name__ == '__main__':
     from taaled import ld
     import glob
+
     path = '../data/testset-eng'
     files = glob.glob(path + "/*.txt")
     # ld.ldwrite(files, "(nodelete)_prll_tmp_result_from_orig_to_compare.tsv", mx=200, prll=True)
